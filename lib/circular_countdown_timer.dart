@@ -34,7 +34,8 @@ class CircularCountDownTimer extends StatefulWidget {
 
   /// Text Style for Countdown Text
   final TextStyle textStyle;
-
+final Color ristColor ;
+final int riskTime;
   /// true for reverse countdown (max to 0), false for forward countdown (0 to max)
   final bool isReverse;
 
@@ -50,6 +51,8 @@ class CircularCountDownTimer extends StatefulWidget {
   CircularCountDownTimer(
       {@required this.width,
       @required this.height,
+      @required this.riskTime,
+      @required this.ristColor,
       @required this.duration,
       @required this.fillColor,
       @required this.color,
@@ -75,6 +78,7 @@ class CircularCountDownTimer extends StatefulWidget {
 class CircularCountDownTimerState extends State<CircularCountDownTimer>
     with TickerProviderStateMixin {
   AnimationController _controller;
+  
   Animation<double> _countDownAnimation;
 
   String get time {
@@ -85,6 +89,7 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
       return _getTime(duration);
     }
   }
+  
 
   void _setAnimation() {
     if (widget.isReverse) {
@@ -106,6 +111,7 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     widget.controller?._state = this;
     widget.controller?._isReverse = widget.isReverse;
   }
+  
 
   String _getTime(Duration duration) {
     // For HH:mm:ss format
@@ -149,6 +155,8 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     _setAnimation();
     _setAnimationDirection();
     _setController();
+
+
   }
 
   @override
@@ -178,7 +186,7 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
                                     painter: CustomTimerPainter(
                                         animation:
                                             _countDownAnimation ?? _controller,
-                                        fillColor: widget.fillColor,
+                                        fillColor: (_controller.duration * _controller.value).inSeconds>=widget.riskTime?widget.ristColor: widget.fillColor,
                                         color: widget.color,
                                         strokeWidth: widget.strokeWidth,
                                         backgroundColor:
