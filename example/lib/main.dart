@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 
@@ -40,6 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: CircularCountDownTimer(
         // Countdown duration in Seconds
         duration: 10,
+        currentDuration: 10,
 riskTime: 8,
 ristColor: Colors.amber,
         // Controller to control (i.e Pause, Resume, Restart) the Countdown
@@ -86,6 +88,7 @@ ristColor: Colors.amber,
       )),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
+           
             setState(() {
               if (_isPause) {
                 _isPause = false;

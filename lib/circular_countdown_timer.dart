@@ -22,6 +22,7 @@ class CircularCountDownTimer extends StatefulWidget {
 
   /// Countdown Duration in Seconds
   final int duration;
+  final int currentDuration;
 
   /// Width of the Countdown Widget
   final double width;
@@ -50,6 +51,7 @@ final int riskTime;
 
   CircularCountDownTimer(
       {@required this.width,
+      @required this.currentDuration,
       @required this.height,
       @required this.riskTime,
       @required this.ristColor,
@@ -133,7 +135,7 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: widget.duration),
+      duration: Duration(seconds: widget.currentDuration),
     );
 
     _controller.addStatusListener((status) {
@@ -241,6 +243,7 @@ class CountDownController {
   // This Method Resumes the Countdown Timer
   void resume() {
     if (_isReverse) {
+    
       _state._controller
           ?.reverse(from: _state._controller.value = _state._controller.value);
     } else {
