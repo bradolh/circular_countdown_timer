@@ -21,8 +21,8 @@ class CircularCountDownTimer extends StatefulWidget {
   final Function onComplete;
 
   /// Countdown Duration in Seconds
-  final int duration;
   final int currentDuration;
+  final int totalDuration;
 
   /// Width of the Countdown Widget
   final double width;
@@ -35,8 +35,9 @@ class CircularCountDownTimer extends StatefulWidget {
 
   /// Text Style for Countdown Text
   final TextStyle textStyle;
-final Color ristColor ;
-final int riskTime;
+  final Color ristColor;
+  final int riskTime;
+
   /// true for reverse countdown (max to 0), false for forward countdown (0 to max)
   final bool isReverse;
 
@@ -51,11 +52,11 @@ final int riskTime;
 
   CircularCountDownTimer(
       {@required this.width,
-      @required this.currentDuration,
+      @required this.totalDuration,
       @required this.height,
       @required this.riskTime,
       @required this.ristColor,
-      @required this.duration,
+      @required this.currentDuration,
       @required this.fillColor,
       @required this.color,
       this.backgroundColor,
@@ -69,7 +70,7 @@ final int riskTime;
       this.controller})
       : assert(width != null),
         assert(height != null),
-        assert(duration != null),
+        assert(currentDuration != null),
         assert(fillColor != null),
         assert(color != null);
 
@@ -80,9 +81,10 @@ final int riskTime;
 class CircularCountDownTimerState extends State<CircularCountDownTimer>
     with TickerProviderStateMixin {
   AnimationController _controller;
-  
-  Animation<double> _countDownAnimation;
 
+  Animation<double> _countDownAnimation;
+  //currentDuration = 0 - 1
+  //              totalTime - 0
   String get time {
     if (widget.isReverse && _controller.isDismissed) {
       return '0:00';
@@ -91,13 +93,13 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
       return _getTime(duration);
     }
   }
-  
 
   void _setAnimation() {
+    var current = widget.currentDuration / widget.totalDuration;
     if (widget.isReverse) {
-      _controller.reverse(from: 1);
+      _controller.reverse(from: 1 - current);
     } else {
-      _controller.forward();
+      _controller.forward(from: current);
     }
   }
 
@@ -113,7 +115,6 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     widget.controller?._state = this;
     widget.controller?._isReverse = widget.isReverse;
   }
-  
 
   String _getTime(Duration duration) {
     // For HH:mm:ss format
@@ -135,7 +136,8 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: widget.currentDuration),
+      duration: Duration(seconds: widget.totalDuration),
+      value: widget.currentDuration / widget.totalDuration
     );
 
     _controller.addStatusListener((status) {
@@ -157,8 +159,6 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     _setAnimation();
     _setAnimationDirection();
     _setController();
-
-
   }
 
   @override
@@ -188,7 +188,12 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
                                     painter: CustomTimerPainter(
                                         animation:
                                             _countDownAnimation ?? _controller,
-                                        fillColor: (_controller.duration * _controller.value).inSeconds>=widget.riskTime?widget.ristColor: widget.fillColor,
+                                        fillColor: (_controller.duration *
+                                                        _controller.value)
+                                                    .inSeconds >=
+                                                widget.riskTime
+                                            ? widget.ristColor
+                                            : widget.fillColor,
                                         color: widget.color,
                                         strokeWidth: widget.strokeWidth,
                                         backgroundColor:
@@ -243,7 +248,6 @@ class CountDownController {
   // This Method Resumes the Countdown Timer
   void resume() {
     if (_isReverse) {
-    
       _state._controller
           ?.reverse(from: _state._controller.value = _state._controller.value);
     } else {
