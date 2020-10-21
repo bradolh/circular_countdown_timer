@@ -21,8 +21,7 @@ class CircularCountDownTimer extends StatefulWidget {
   final Function onComplete;
 
   /// Countdown Duration in Seconds
-  final int currentDuration;
-  final int totalDuration;
+  final int duration;
 
   /// Width of the Countdown Widget
   final double width;
@@ -35,9 +34,8 @@ class CircularCountDownTimer extends StatefulWidget {
 
   /// Text Style for Countdown Text
   final TextStyle textStyle;
-  final Color ristColor;
-  final int riskTime;
-
+final Color ristColor ;
+final int riskTime;
   /// true for reverse countdown (max to 0), false for forward countdown (0 to max)
   final bool isReverse;
 
@@ -52,11 +50,10 @@ class CircularCountDownTimer extends StatefulWidget {
 
   CircularCountDownTimer(
       {@required this.width,
-      @required this.totalDuration,
       @required this.height,
       @required this.riskTime,
       @required this.ristColor,
-      @required this.currentDuration,
+      @required this.duration,
       @required this.fillColor,
       @required this.color,
       this.backgroundColor,
@@ -70,7 +67,7 @@ class CircularCountDownTimer extends StatefulWidget {
       this.controller})
       : assert(width != null),
         assert(height != null),
-        assert(currentDuration != null),
+        assert(duration != null),
         assert(fillColor != null),
         assert(color != null);
 
@@ -81,10 +78,9 @@ class CircularCountDownTimer extends StatefulWidget {
 class CircularCountDownTimerState extends State<CircularCountDownTimer>
     with TickerProviderStateMixin {
   AnimationController _controller;
-
+  
   Animation<double> _countDownAnimation;
-  //currentDuration = 0 - 1
-  //              totalTime - 0
+
   String get time {
     if (widget.isReverse && _controller.isDismissed) {
       return '0:00';
@@ -93,13 +89,13 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
       return _getTime(duration);
     }
   }
+  
 
   void _setAnimation() {
-    var current = widget.currentDuration / widget.totalDuration;
     if (widget.isReverse) {
-      _controller.reverse(from: 1 - current);
+      _controller.reverse(from: 1);
     } else {
-      _controller.forward(from: current);
+      _controller.forward();
     }
   }
 
@@ -115,6 +111,7 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     widget.controller?._state = this;
     widget.controller?._isReverse = widget.isReverse;
   }
+  
 
   String _getTime(Duration duration) {
     // For HH:mm:ss format
@@ -136,8 +133,7 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: widget.totalDuration),
-      value: widget.currentDuration / widget.totalDuration
+      duration: Duration(seconds: widget.duration),
     );
 
     _controller.addStatusListener((status) {
@@ -159,6 +155,8 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     _setAnimation();
     _setAnimationDirection();
     _setController();
+
+
   }
 
   @override
@@ -188,12 +186,7 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
                                     painter: CustomTimerPainter(
                                         animation:
                                             _countDownAnimation ?? _controller,
-                                        fillColor: (_controller.duration *
-                                                        _controller.value)
-                                                    .inSeconds >=
-                                                widget.riskTime
-                                            ? widget.ristColor
-                                            : widget.fillColor,
+                                        fillColor: (_controller.duration * _controller.value).inSeconds>=widget.riskTime?widget.ristColor: widget.fillColor,
                                         color: widget.color,
                                         strokeWidth: widget.strokeWidth,
                                         backgroundColor:

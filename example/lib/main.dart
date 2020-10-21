@@ -1,4 +1,3 @@
-import 'package:example/testscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 
@@ -33,7 +32,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var time = DateTime.now().second;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -41,10 +39,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
           child: CircularCountDownTimer(
         // Countdown duration in Seconds
-        totalDuration: 60,
-        currentDuration: time,
-        riskTime: 8,
-        ristColor: Colors.amber,
+        duration: 10,
+riskTime: 8,
+ristColor: Colors.amber,
         // Controller to control (i.e Pause, Resume, Restart) the Countdown
         controller: _controller,
 
@@ -62,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         // Background Color for Countdown Widget
         backgroundColor: null,
+        
 
         // Border Thickness of the Countdown Circle
         strokeWidth: 5.0,
@@ -71,34 +69,32 @@ class _MyHomePageState extends State<MyHomePage> {
             fontSize: 22.0, color: Colors.black, fontWeight: FontWeight.bold),
 
         // true for reverse countdown (max to 0), false for forward countdown (0 to max)
-        isReverse: true,
+        isReverse: false,
 
         // true for reverse animation, false for forward animation
-        isReverseAnimation: true,
+        isReverseAnimation: false,
 
         // Optional [bool] to hide the [Text] in this widget.
         isTimerTextShown: true,
+      
 
         // Function which will execute when the Countdown Ends
         onComplete: () {
           // Here, do whatever you want
-          _controller.restart(duration: 60);
+         _controller.restart(duration: 5);
         },
       )),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (ctx) => TestScreen()));
-
-            // setState(() {
-            //   if (_isPause) {
-            //     _isPause = false;
-            //     _controller.resume();
-            //   } else {
-            //     _isPause = true;
-            //     _controller.pause();
-            //   }
-            // });
+            setState(() {
+              if (_isPause) {
+                _isPause = false;
+                _controller.resume();
+              } else {
+                _isPause = true;
+                _controller.pause();
+              }
+            });
           },
           icon: Icon(_isPause ? Icons.play_arrow : Icons.pause),
           label: Text(_isPause ? "Resume" : "Pause")),
