@@ -29,7 +29,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   CountDownController _controller = CountDownController(
-    isStartFromMax: true,
+    isStartFromMax: false,
     startDate: DateTime.now(),
     totalDuration: Duration(seconds: 30),
   );
@@ -54,8 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: CircularCountDownTimer(
           // Countdown duration in Seconds
-          riskPercent: 8,
-          ristColor: Colors.amber,
+          endFillColor: Colors.yellow,
           // Controller to control (i.e Pause, Resume, Restart) the Countdown
           controller: _controller,
 
@@ -69,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
           color: Colors.white,
 
           // Filling Color for Countdown Timer
-          fillColor: Colors.red,
+          startFillColor: Colors.red,
 
           // Background Color for Countdown Widget
           backgroundColor: null,

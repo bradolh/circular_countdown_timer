@@ -10,7 +10,7 @@ class CircularCountDownTimer extends StatelessWidget {
   final Key key;
 
   /// Filling Color for Countdown Timer
-  final Color fillColor;
+  final Color startFillColor;
 
   /// Default Color for Countdown Timer
   final Color color;
@@ -29,10 +29,7 @@ class CircularCountDownTimer extends StatelessWidget {
 
   /// Text Style for Countdown Text
   final TextStyle textStyle;
-  final Color ristColor;
-
-  // Must be 0 > [riskPercent] > 1
-  final double riskPercent;
+  final Color endFillColor;
 
   /// Optional [bool] to hide the [Text] in this widget.
   final bool isTimerTextShown;
@@ -43,9 +40,8 @@ class CircularCountDownTimer extends StatelessWidget {
   CircularCountDownTimer({
     @required this.width,
     @required this.height,
-    @required this.riskPercent,
-    @required this.ristColor,
-    @required this.fillColor,
+    @required this.endFillColor,
+    @required this.startFillColor,
     @required this.color,
     this.backgroundColor,
     this.strokeWidth,
@@ -55,7 +51,7 @@ class CircularCountDownTimer extends StatelessWidget {
     CountDownController controller,
   })  : assert(width != null),
         assert(height != null),
-        assert(fillColor != null),
+        assert(startFillColor != null),
         assert(color != null),
         this.controller = controller ?? CountDownController();
 
@@ -96,9 +92,14 @@ class CircularCountDownTimer extends StatelessWidget {
                                   child: CustomPaint(
                                     painter: CustomTimerPainter(
                                       percent: percent,
-                                      fillColor: percent >= riskPercent
-                                          ? ristColor
-                                          : fillColor,
+                                      fillColor: Color.lerp(
+                                          controller.isStartFromMax
+                                              ? startFillColor
+                                              : endFillColor,
+                                          controller.isStartFromMax
+                                              ? endFillColor
+                                              : startFillColor,
+                                          percent),
                                       color: color,
                                       strokeWidth: strokeWidth,
                                       backgroundColor: backgroundColor,
