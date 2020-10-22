@@ -1,10 +1,11 @@
 library circular_countdown_timer;
 
 import 'package:flutter/material.dart';
+import 'count_down_controller.dart';
 import 'custom_timer_painter.dart';
 
 /// Create a Circular Countdown Timer
-class CircularCountDownTimer extends StatefulWidget {
+class CircularCountDownTimer extends StatelessWidget {
   /// Key for Countdown Timer
   final Key key;
 
@@ -17,12 +18,6 @@ class CircularCountDownTimer extends StatefulWidget {
   /// Background Color for Countdown Widget
   final Color backgroundColor;
 
-  /// Function which will execute when the Countdown Ends
-  final Function onComplete;
-
-  /// Countdown Duration in Seconds
-  final int duration;
-
   /// Width of the Countdown Widget
   final double width;
 
@@ -34,13 +29,10 @@ class CircularCountDownTimer extends StatefulWidget {
 
   /// Text Style for Countdown Text
   final TextStyle textStyle;
-final Color ristColor ;
-final int riskTime;
-  /// true for reverse countdown (max to 0), false for forward countdown (0 to max)
-  final bool isReverse;
+  final Color ristColor;
 
-  /// true for reverse animation, false for forward animation
-  final bool isReverseAnimation;
+  // Must be 0 > [riskPercent] > 1
+  final double riskPercent;
 
   /// Optional [bool] to hide the [Text] in this widget.
   final bool isTimerTextShown;
@@ -48,72 +40,26 @@ final int riskTime;
   /// Controller to control (i.e Pause, Resume, Restart) the Countdown
   final CountDownController controller;
 
-  CircularCountDownTimer(
-      {@required this.width,
-      @required this.height,
-      @required this.riskTime,
-      @required this.ristColor,
-      @required this.duration,
-      @required this.fillColor,
-      @required this.color,
-      this.backgroundColor,
-      this.isReverse = false,
-      this.isReverseAnimation = false,
-      this.onComplete,
-      this.strokeWidth,
-      this.textStyle,
-      this.key,
-      this.isTimerTextShown = true,
-      this.controller})
-      : assert(width != null),
+  CircularCountDownTimer({
+    @required this.width,
+    @required this.height,
+    @required this.riskPercent,
+    @required this.ristColor,
+    @required this.fillColor,
+    @required this.color,
+    this.backgroundColor,
+    this.strokeWidth,
+    this.textStyle,
+    this.key,
+    this.isTimerTextShown = true,
+    CountDownController controller,
+  })  : assert(width != null),
         assert(height != null),
-        assert(duration != null),
         assert(fillColor != null),
-        assert(color != null);
+        assert(color != null),
+        this.controller = controller ?? CountDownController();
 
-  @override
-  CircularCountDownTimerState createState() => CircularCountDownTimerState();
-}
-
-class CircularCountDownTimerState extends State<CircularCountDownTimer>
-    with TickerProviderStateMixin {
-  AnimationController _controller;
-  
-  Animation<double> _countDownAnimation;
-
-  String get time {
-    if (widget.isReverse && _controller.isDismissed) {
-      return '0:00';
-    } else {
-      Duration duration = _controller.duration * _controller.value;
-      return _getTime(duration);
-    }
-  }
-  
-
-  void _setAnimation() {
-    if (widget.isReverse) {
-      _controller.reverse(from: 1);
-    } else {
-      _controller.forward();
-    }
-  }
-
-  void _setAnimationDirection() {
-    if ((!widget.isReverse && widget.isReverseAnimation) ||
-        (widget.isReverse && !widget.isReverseAnimation)) {
-      _countDownAnimation =
-          Tween<double>(begin: 1, end: 0).animate(_controller);
-    }
-  }
-
-  void _setController() {
-    widget.controller?._state = this;
-    widget.controller?._isReverse = widget.isReverse;
-  }
-  
-
-  String _getTime(Duration duration) {
+  String getTime(Duration duration) {
     // For HH:mm:ss format
     if (duration.inHours != 0) {
       return '${duration.inHours}:${duration.inMinutes % 60}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
@@ -124,81 +70,47 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
     }
   }
 
-  void _onComplete() {
-    if (widget.onComplete != null) widget.onComplete();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: widget.duration),
-    );
-
-    _controller.addStatusListener((status) {
-      switch (status) {
-        case AnimationStatus.dismissed:
-          _onComplete();
-          break;
-        case AnimationStatus.completed:
-
-          /// [AnimationController]'s value is manually set to [1.0] that's why [AnimationStatus.completed] is invoked here this animation is [isReverse]
-          /// Only call the [_onComplete] block when the animation is not reversed.
-          if (!widget.isReverse) _onComplete();
-          break;
-        default:
-        // Do nothing
-      }
-    });
-
-    _setAnimation();
-    _setAnimationDirection();
-    _setController();
-
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: widget.width,
-      height: widget.height,
-      child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Stack(
+      width: width,
+      height: height,
+      child: Stack(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Expanded(
-                        child: Align(
-                          alignment: FractionalOffset.center,
-                          child: AspectRatio(
-                            aspectRatio: 1.0,
-                            child: Stack(
+                Expanded(
+                  child: Align(
+                    alignment: FractionalOffset.center,
+                    child: AspectRatio(
+                      aspectRatio: 1.0,
+                      child: ValueListenableBuilder<double>(
+                          valueListenable: controller,
+                          builder: (context, percent, child) {
+                            return Stack(
                               children: <Widget>[
                                 Positioned.fill(
                                   child: CustomPaint(
                                     painter: CustomTimerPainter(
-                                        animation:
-                                            _countDownAnimation ?? _controller,
-                                        fillColor: (_controller.duration * _controller.value).inSeconds>=widget.riskTime?widget.ristColor: widget.fillColor,
-                                        color: widget.color,
-                                        strokeWidth: widget.strokeWidth,
-                                        backgroundColor:
-                                            widget.backgroundColor),
+                                      percent: percent,
+                                      fillColor: percent >= riskPercent
+                                          ? ristColor
+                                          : fillColor,
+                                      color: color,
+                                      strokeWidth: strokeWidth,
+                                      backgroundColor: backgroundColor,
+                                    ),
                                   ),
                                 ),
-                                widget.isTimerTextShown
+                                isTimerTextShown
                                     ? Align(
                                         alignment: FractionalOffset.center,
                                         child: Text(
-                                          time,
-                                          style: widget.textStyle ??
+                                          getTime(controller.elapsed),
+                                          style: textStyle ??
                                               TextStyle(
                                                 fontSize: 16.0,
                                                 color: Colors.black,
@@ -207,58 +119,16 @@ class CircularCountDownTimerState extends State<CircularCountDownTimer>
                                       )
                                     : Container(),
                               ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                            );
+                          }),
+                    ),
                   ),
                 ),
               ],
-            );
-          }),
+            ),
+          ),
+        ],
+      ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.stop();
-    _controller.dispose();
-    super.dispose();
-  }
-}
-
-// Controller for controlling Countdown Widget (i.e Pause, Resume, Restart)
-class CountDownController {
-  CircularCountDownTimerState _state;
-  bool _isReverse;
-
-  // This Method Pauses the Countdown Timer
-  void pause() {
-    _state._controller?.stop(canceled: false);
-  }
-
-  // This Method Resumes the Countdown Timer
-  void resume() {
-    if (_isReverse) {
-      _state._controller
-          ?.reverse(from: _state._controller.value = _state._controller.value);
-    } else {
-      _state._controller?.forward(from: _state._controller.value);
-    }
-  }
-
-  /*
-  * This Method Restarts the Countdown Timer
-  * Here optional int parameter **duration** is the updated duration for countdown timer on Restart
-  */
-  void restart({int duration}) {
-    _state._controller.duration =
-        Duration(seconds: duration ?? _state._controller.duration.inSeconds);
-    if (_isReverse) {
-      _state._controller?.reverse(from: 1);
-    } else {
-      _state._controller?.forward(from: 0);
-    }
   }
 }

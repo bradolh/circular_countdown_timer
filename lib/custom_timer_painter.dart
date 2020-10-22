@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class CustomTimerPainter extends CustomPainter {
-  CustomTimerPainter(
-      {this.animation,
-      this.fillColor,
-      this.color,
-      this.strokeWidth,
-      this.backgroundColor})
-      : super(repaint: animation);
+  CustomTimerPainter({
+    this.percent,
+    this.fillColor,
+    this.color,
+    this.strokeWidth,
+    this.backgroundColor,
+  });
 
-  final Animation<double> animation;
+  final double percent;
   final Color fillColor, color, backgroundColor;
   final double strokeWidth;
 
@@ -24,7 +24,7 @@ class CustomTimerPainter extends CustomPainter {
 
     canvas.drawCircle(size.center(Offset.zero), size.width / 2.0, paint);
     paint.color = color;
-    double progress = (1.0 - animation.value) * 2 * math.pi;
+    double progress = (1.0 - percent) * 2 * math.pi;
     canvas.drawArc(Offset.zero & size, math.pi * 1.5, -progress, false, paint);
 
     if (backgroundColor != null) {
@@ -37,7 +37,7 @@ class CustomTimerPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomTimerPainter old) {
-    return animation.value != old.animation.value ||
+    return percent != old.percent ||
         color != old.color ||
         fillColor != old.fillColor;
   }
