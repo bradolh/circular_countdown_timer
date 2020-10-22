@@ -52,6 +52,7 @@ class CountDownController extends ValueNotifier<double> {
   Timer timer;
 
   void _onTimerChanged(Timer timer) {
+    if (startDate == null || totalDuration == null) return;
     if (isActive) {
       var toChange = elapsed.inMilliseconds / totalDuration.inMilliseconds;
       if (toChange <= 1) {
