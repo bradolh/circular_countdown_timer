@@ -52,15 +52,21 @@ class CountDownController extends ValueNotifier<double> {
   Timer timer;
 
   void _onTimerChanged(Timer timer) {
-    if (startDate == null || totalDuration == null) return;
+    print('timer');
+    //timer.cancel();
+    if (startDate == null || totalDuration == null){
+      timer.cancel();
+      return;
+    }
     if (isActive) {
       var toChange = elapsed.inMilliseconds / totalDuration.inMilliseconds;
-      if (toChange <= 1) {
+      print(toChange);
+      if (toChange > 0) {
         value = toChange;
       } else {
         value = isStartFromMax ? 0 : 1;
         isActive = false;
-
+        timer.cancel();
         onComplete?.call();
       }
     }
