@@ -52,7 +52,7 @@ class CountDownController extends ValueNotifier<double> {
   Timer timer;
 
   void _onTimerChanged(Timer timer) {
-    print('timer');
+    //print('timer');
     //timer.cancel();
     if (startDate == null || totalDuration == null){
       timer.cancel();
@@ -60,7 +60,7 @@ class CountDownController extends ValueNotifier<double> {
     }
     if (isActive) {
       var toChange = elapsed.inMilliseconds / totalDuration.inMilliseconds;
-      print(toChange);
+      //print(toChange);
       if (toChange > 0) {
         value = toChange;
       } else {
